@@ -1,0 +1,423 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>COVID-19 Outcomes Regression | Data Science Portfolio</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+        body {
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, #1e40af 0%, #0891b2 50%, #06b6d4 100%);
+        }
+        
+        .fade-in {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: all 0.8s ease-out;
+        }
+        
+        .fade-in.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .card-hover {
+            transition: all 0.3s ease;
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .chip {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .metric-card {
+            background: linear-gradient(135deg, rgba(30, 64, 175, 0.05) 0%, rgba(8, 145, 178, 0.05) 100%);
+            border: 1px solid rgba(30, 64, 175, 0.1);
+        }
+        
+        html {
+            scroll-behavior: smooth;
+        }
+        
+        .section-padding {
+            padding: 5rem 0;
+        }
+        
+        @media (max-width: 768px) {
+            .section-padding {
+                padding: 3rem 0;
+            }
+        }
+    </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="bg-gray-50 text-gray-800"><!-- Hero Section -->
+  <section class="gradient-bg min-h-screen flex items-center justify-center text-white relative overflow-hidden">
+   <div class="absolute inset-0 bg-black bg-opacity-10"></div>
+   <div class="container mx-auto px-6 text-center relative z-10 fade-in">
+    <h1 id="project-title" class="text-5xl md:text-7xl font-bold mb-6 leading-tight">Project 3: COVID-19 Outcomes Regression</h1>
+    <p id="project-subtitle" class="text-xl md:text-2xl mb-12 max-w-4xl mx-auto leading-relaxed font-light">Forecasting outcomes among vaccinated people (per 100k) using rates, populations, and age</p>
+    <div class="flex flex-wrap justify-center gap-4 mb-12"><span class="chip px-6 py-3 rounded-full text-lg font-medium">📊 Data Mining</span> <span class="chip px-6 py-3 rounded-full text-lg font-medium">🏥 Public Health Analytics</span> <span class="chip px-6 py-3 rounded-full text-lg font-medium">🤖 Machine Learning</span>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-6 justify-center"><a href="#findings" class="bg-white text-blue-600 px-8 py-4 rounded-lg font-semibold text-lg hover:bg-gray-100 transition-all duration-300 shadow-lg"> Explore Findings </a> <a href="#previous-projects" class="border-2 border-white text-white px-8 py-4 rounded-lg font-semibold text-lg hover:bg-white hover:text-blue-600 transition-all duration-300"> View Previous Projects </a>
+    </div>
+   </div>
+  </section><!-- Introduction -->
+  <section id="intro" class="section-padding bg-white">
+   <div class="container mx-auto px-6">
+    <div class="max-w-4xl mx-auto fade-in">
+     <h2 class="text-4xl font-bold text-gray-900 mb-8 text-center">Introduction</h2>
+     <div class="bg-blue-50 p-8 rounded-xl mb-8">
+      <h3 class="text-2xl font-semibold text-blue-900 mb-4">🎯 Motivation</h3>
+      <p id="motivation-text" class="text-lg leading-relaxed text-gray-700">Predict the expected rate of outcomes among vaccinated people (per 100,000) to support planning and communication.</p>
+     </div>
+     <div class="prose prose-lg max-w-none">
+      <p class="text-lg leading-relaxed mb-8">This project analyzes structured records containing vaccination rates (unvaccinated/vaccinated/boosted), population counts, age groups, and health outcomes to build predictive models for public health planning.</p>
+      <div class="text-center"><a href="#" class="inline-flex items-center bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition-colors"> 📊 View Source Dataset </a>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section><!-- Problem Statement -->
+  <section id="problem" class="section-padding bg-gray-100">
+   <div class="container mx-auto px-6">
+    <div class="max-w-4xl mx-auto fade-in">
+     <h2 class="text-4xl font-bold text-gray-900 mb-8 text-center">Problem Statement &amp; Research Question</h2>
+     <div class="grid md:grid-cols-2 gap-8">
+      <div class="bg-white p-8 rounded-xl shadow-lg card-hover">
+       <h3 class="text-2xl font-semibold text-blue-900 mb-4">🎯 Problem</h3>
+       <p class="text-lg leading-relaxed">Build a regression model to predict <code class="bg-gray-100 px-2 py-1 rounded">Outcome_Vax_per100k</code>.</p>
+      </div>
+      <div class="bg-white p-8 rounded-xl shadow-lg card-hover">
+       <h3 class="text-2xl font-semibold text-teal-700 mb-4">❓ Research Question</h3>
+       <p id="research-question" class="text-lg leading-relaxed">How well do vaccination rates, population scale, and age explain vaccinated outcome rates, and which linear specification performs best?</p>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section><!-- Data Understanding -->
+  <section id="data-understanding" class="section-padding bg-white">
+   <div class="container mx-auto px-6">
+    <div class="max-w-6xl mx-auto fade-in">
+     <h2 class="text-4xl font-bold text-gray-900 mb-12 text-center">Data Understanding</h2>
+     <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+      <div class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl card-hover">
+       <h3 class="text-xl font-semibold text-blue-900 mb-3">📈 Univariate</h3>
+       <p class="text-gray-700">Heavy right-skew in rates and outcomes; multimodal populations.</p>
+      </div>
+      <div class="bg-gradient-to-br from-teal-50 to-teal-100 p-6 rounded-xl card-hover">
+       <h3 class="text-xl font-semibold text-teal-900 mb-3">🔄 Transforms</h3>
+       <p class="text-gray-700">Applied log1p to stabilize variance.</p>
+      </div>
+      <div class="bg-gradient-to-br from-cyan-50 to-cyan-100 p-6 rounded-xl card-hover">
+       <h3 class="text-xl font-semibold text-cyan-900 mb-3">📊 Bivariate</h3>
+       <p class="text-gray-700">Strong positive association with Unvaccinated Rate; near-deterministic tie spotted.</p>
+      </div>
+      <div class="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-xl card-hover">
+       <h3 class="text-xl font-semibold text-indigo-900 mb-3">👥 Groupwise (Age)</h3>
+       <p class="text-gray-700">Higher spread in older groups; interactions plausible.</p>
+      </div>
+      <div class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl card-hover">
+       <h3 class="text-xl font-semibold text-purple-900 mb-3">🔗 Multicollinearity</h3>
+       <p class="text-gray-700">VIF flagged Vaccinated vs Unvaccinated Rates (&gt;6).</p>
+      </div>
+      <div class="bg-gradient-to-br from-pink-50 to-pink-100 p-6 rounded-xl card-hover">
+       <h3 class="text-xl font-semibold text-pink-900 mb-3">📋 Long-format</h3>
+       <p class="text-gray-700">Reshape to compare Unvax/Vax/Boost rate–outcome pairs consistently.</p>
+      </div>
+     </div>
+     <div class="bg-yellow-50 border-l-4 border-yellow-400 p-6 rounded-r-xl">
+      <div class="flex items-start">
+       <div class="text-yellow-600 text-2xl mr-3">
+        ⚠️
+       </div>
+       <div>
+        <h4 class="text-lg font-semibold text-yellow-800 mb-2">Data Leakage Prevention</h4>
+        <p class="text-yellow-700">We avoid leakage by excluding Vaccinated Rate when modeling vaccinated outcomes directly tied to its denominator.</p>
+       </div>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section><!-- Preprocessing Pipeline -->
+  <section id="preprocessing" class="section-padding bg-gray-100">
+   <div class="container mx-auto px-6">
+    <div class="max-w-6xl mx-auto fade-in">
+     <h2 class="text-4xl font-bold text-gray-900 mb-12 text-center">Preprocessing Pipeline</h2>
+     <div class="flex flex-wrap justify-center gap-4 mb-8">
+      <div class="chip bg-red-100 text-red-800 px-6 py-3 rounded-full font-medium">
+       🚫 Remove leakage features
+      </div>
+      <div class="chip bg-orange-100 text-orange-800 px-6 py-3 rounded-full font-medium">
+       🧩 Median/mode imputation
+      </div>
+      <div class="chip bg-yellow-100 text-yellow-800 px-6 py-3 rounded-full font-medium">
+       🔁 log1p transform on skewed numerics
+      </div>
+      <div class="chip bg-green-100 text-green-800 px-6 py-3 rounded-full font-medium">
+       🔤 One-hot encode Age
+      </div>
+      <div class="chip bg-blue-100 text-blue-800 px-6 py-3 rounded-full font-medium">
+       📏 Standardize numerics
+      </div>
+      <div class="chip bg-purple-100 text-purple-800 px-6 py-3 rounded-full font-medium">
+       🔀 Train/test split
+      </div>
+     </div>
+     <p class="text-center text-lg text-gray-600 italic">Pipelines ensure no data leakage and reproducible transforms.</p>
+    </div>
+   </div>
+  </section><!-- Model 1 -->
+  <section id="model1" class="section-padding bg-white">
+   <div class="container mx-auto px-6">
+    <div class="max-w-4xl mx-auto fade-in">
+     <h2 class="text-4xl font-bold text-gray-900 mb-12 text-center">Model 1 — Required Linear Regression</h2>
+     <div class="bg-blue-50 p-8 rounded-xl mb-8">
+      <h3 class="text-2xl font-semibold text-blue-900 mb-4">🎯 Chosen Specification (A2)</h3>
+      <p class="text-lg mb-4">OLS, no interactions, keep populations</p>
+      <p class="text-gray-700"><strong>Why:</strong> Prior interaction model overfit tails; removing polynomial interactions improved practical error.</p>
+     </div>
+     <div class="grid md:grid-cols-3 gap-6 mb-8">
+      <div class="metric-card p-6 rounded-xl text-center">
+       <div class="text-3xl font-bold text-blue-600 mb-2">
+        18.67
+       </div>
+       <div class="text-gray-600">
+        MAE (per 100k)
+       </div>
+      </div>
+      <div class="metric-card p-6 rounded-xl text-center">
+       <div class="text-3xl font-bold text-teal-600 mb-2">
+        98.05
+       </div>
+       <div class="text-gray-600">
+        RMSE (per 100k)
+       </div>
+      </div>
+      <div class="metric-card p-6 rounded-xl text-center">
+       <div class="text-3xl font-bold text-cyan-600 mb-2">
+        0.8435
+       </div>
+       <div class="text-gray-600">
+        R² (log scale)
+       </div>
+      </div>
+     </div>
+     <div class="text-center">
+      <p class="text-lg text-gray-600 italic">"Simple, stable, and best practical accuracy among linear variants."</p>
+     </div>
+    </div>
+   </div>
+  </section><!-- Ablations -->
+  <section id="ablations" class="section-padding bg-gray-100">
+   <div class="container mx-auto px-6">
+    <div class="max-w-6xl mx-auto fade-in">
+     <h2 class="text-4xl font-bold text-gray-900 mb-12 text-center">Ablations &amp; What We Learned</h2>
+     <div class="bg-white rounded-xl shadow-lg overflow-hidden mb-8">
+      <div class="overflow-x-auto">
+       <table class="w-full">
+        <thead class="bg-gray-50">
+         <tr>
+          <th class="px-6 py-4 text-left font-semibold text-gray-900">Model Variant</th>
+          <th class="px-6 py-4 text-center font-semibold text-gray-900">MAE</th>
+          <th class="px-6 py-4 text-center font-semibold text-gray-900">RMSE</th>
+          <th class="px-6 py-4 text-center font-semibold text-gray-900">R²_log</th>
+          <th class="px-6 py-4 text-left font-semibold text-gray-900">Notes</th>
+         </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200">
+         <tr>
+          <td class="px-6 py-4 font-medium">Baseline OLS + interactions + pops</td>
+          <td class="px-6 py-4 text-center">23.01</td>
+          <td class="px-6 py-4 text-center">153.64</td>
+          <td class="px-6 py-4 text-center">0.8610</td>
+          <td class="px-6 py-4 text-red-600">overfit tails</td>
+         </tr>
+         <tr class="bg-gray-50">
+          <td class="px-6 py-4 font-medium">Rates-only + interactions</td>
+          <td class="px-6 py-4 text-center">22.93</td>
+          <td class="px-6 py-4 text-center">133.94</td>
+          <td class="px-6 py-4 text-center">0.8457</td>
+          <td class="px-6 py-4 text-orange-600">better but still tail-heavy</td>
+         </tr>
+         <tr>
+          <td class="px-6 py-4 font-medium">A2 OLS (no interactions, keep pops)</td>
+          <td class="px-6 py-4 text-center font-bold text-green-600">18.67</td>
+          <td class="px-6 py-4 text-center font-bold text-green-600">98.05</td>
+          <td class="px-6 py-4 text-center font-bold text-green-600">0.8435</td>
+          <td class="px-6 py-4 text-green-600 font-medium">best linear</td>
+         </tr>
+        </tbody>
+       </table>
+      </div>
+     </div>
+     <div class="bg-green-50 border-l-4 border-green-400 p-6 rounded-r-xl">
+      <div class="flex items-center">
+       <div class="text-green-600 text-2xl mr-3">
+        💡
+       </div>
+       <p class="text-green-800 font-medium text-lg">Key Insight: Removing interactions reduced tail errors substantially.</p>
+      </div>
+     </div>
+    </div>
+   </div>
+  </section><!-- All-Subsets Search -->
+  <section id="all-subsets" class="section-padding bg-white">
+   <div class="container mx-auto px-6">
+    <div class="max-w-4xl mx-auto fade-in">
+     <h2 class="text-4xl font-bold text-gray-900 mb-12 text-center">All-Subsets Search</h2>
+     <div class="prose prose-lg max-w-none">
+      <p class="text-lg leading-relaxed mb-8">We built a comprehensive search function that systematically evaluates model performance across multiple dimensions:</p>
+      <div class="grid md:grid-cols-2 gap-8 mb-8">
+       <div class="bg-blue-50 p-6 rounded-xl">
+        <h3 class="text-xl font-semibold text-blue-900 mb-4">🔍 Feature Sets</h3>
+        <ul class="space-y-2 text-gray-700">
+         <li>• rates_only</li>
+         <li>• rates + pop_vax</li>
+         <li>• rates + pop_unvax</li>
+         <li>• rates + pop_boost</li>
+         <li>• rates + all_pops</li>
+        </ul>
+       </div>
+       <div class="bg-teal-50 p-6 rounded-xl">
+        <h3 class="text-xl font-semibold text-teal-900 mb-4">🤖 Models Tested</h3>
+        <ul class="space-y-2 text-gray-700">
+         <li>• OLS Regression</li>
+         <li>• Huber Regression</li>
+         <li>• ElasticNetCV</li>
+         <li>• Gradient Boosting (GBR)</li>
+        </ul>
+       </div>
+      </div>
+      <p class="text-lg leading-relaxed">Each combination is fitted on the training set using our preprocessing pipeline (impute → log1p → scale → one-hot), then evaluated on the test set with back-transformation to original scale for interpretable metrics.</p>
+     </div>
+    </div>
+   </div>
+  </section><!-- Findings -->
+  <section id="findings" class="section-padding bg-gradient-to-br from-blue-900 to-teal-800 text-white">
+   <div class="container mx-auto px-6">
+    <div class="max-w-4xl mx-auto text-center fade-in">
+     <h2 class="text-4xl font-bold mb-8">Key Findings</h2>
+     <div class="grid md:grid-cols-2 gap-8 mb-12">
+      <div class="bg-white bg-opacity-10 p-8 rounded-xl backdrop-blur-sm">
+       <div class="text-4xl mb-4">
+        🎯
+       </div>
+       <h3 class="text-xl font-semibold mb-4">Best Linear Model</h3>
+       <p class="leading-relaxed">Simple OLS without interactions achieved the best practical accuracy with MAE of 18.67 per 100k.</p>
+      </div>
+      <div class="bg-white bg-opacity-10 p-8 rounded-xl backdrop-blur-sm">
+       <div class="text-4xl mb-4">
+        ⚡
+       </div>
+       <h3 class="text-xl font-semibold mb-4">Interaction Effects</h3>
+       <p class="leading-relaxed">Removing polynomial interactions significantly reduced overfitting in tail predictions.</p>
+      </div>
+     </div>
+     <p class="text-xl leading-relaxed opacity-90">This regression analysis provides a robust foundation for predicting COVID-19 outcomes among vaccinated populations, supporting evidence-based public health decision making.</p>
+    </div>
+   </div>
+  </section><!-- Footer -->
+  <footer id="previous-projects" class="bg-gray-900 text-white py-12">
+   <div class="container mx-auto px-6">
+    <div class="max-w-4xl mx-auto text-center">
+     <h3 class="text-2xl font-bold mb-8">Previous Projects</h3>
+     <div class="grid md:grid-cols-2 gap-6 mb-8"><a href="https://motabor153.github.io/project2classification/" target="_blank" rel="noopener noreferrer" class="bg-gray-800 p-6 rounded-xl hover:bg-gray-700 transition-colors"> <h4 class="text-xl font-semibold mb-2">Project 2: Classification</h4><p class="text-gray-300">Advanced classification techniques and model evaluation</p></a> <a href="https://motabor153.github.io/project1datamining/" target="_blank" rel="noopener noreferrer" class="bg-gray-800 p-6 rounded-xl hover:bg-gray-700 transition-colors"> <h4 class="text-xl font-semibold mb-2">Project 1: Data Mining</h4><p class="text-gray-300">Exploratory data analysis and pattern discovery</p></a>
+     </div>
+     <div class="border-t border-gray-700 pt-8">
+      <p id="footer-text" class="text-gray-400">© 2024 Data Science Portfolio</p>
+     </div>
+    </div>
+   </div>
+  </footer>
+  <script>
+        // Configuration object for editable content
+        const defaultConfig = {
+            project_title: "Project 3: COVID-19 Outcomes Regression",
+            project_subtitle: "Forecasting outcomes among vaccinated people (per 100k) using rates, populations, and age",
+            motivation_text: "Predict the expected rate of outcomes among vaccinated people (per 100,000) to support planning and communication.",
+            research_question: "How well do vaccination rates, population scale, and age explain vaccinated outcome rates, and which linear specification performs best?",
+            footer_text: "© 2024 Data Science Portfolio"
+        };
+
+        // Render function to update UI based on config
+        async function render(config) {
+            document.getElementById('project-title').textContent = config.project_title || defaultConfig.project_title;
+            document.getElementById('project-subtitle').textContent = config.project_subtitle || defaultConfig.project_subtitle;
+            document.getElementById('motivation-text').textContent = config.motivation_text || defaultConfig.motivation_text;
+            document.getElementById('research-question').textContent = config.research_question || defaultConfig.research_question;
+            document.getElementById('footer-text').textContent = config.footer_text || defaultConfig.footer_text;
+        }
+
+        // Capabilities mapping
+        function mapToCapabilities(config) {
+            return {
+                recolorables: [],
+                borderables: [],
+                fontEditable: undefined,
+                fontSizeable: undefined
+            };
+        }
+
+        // Edit panel values mapping
+        function mapToEditPanelValues(config) {
+            return new Map([
+                ["project_title", config.project_title || defaultConfig.project_title],
+                ["project_subtitle", config.project_subtitle || defaultConfig.project_subtitle],
+                ["motivation_text", config.motivation_text || defaultConfig.motivation_text],
+                ["research_question", config.research_question || defaultConfig.research_question],
+                ["footer_text", config.footer_text || defaultConfig.footer_text]
+            ]);
+        }
+
+        // Initialize Element SDK
+        if (window.elementSdk) {
+            window.elementSdk.init({
+                defaultConfig,
+                render,
+                mapToCapabilities,
+                mapToEditPanelValues
+            });
+        }
+
+        // Smooth scrolling and fade-in animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Intersection Observer for fade-in animations
+            const observerOptions = {
+                threshold: 0.1,
+                rootMargin: '0px 0px -50px 0px'
+            };
+
+            const observer = new IntersectionObserver(function(entries) {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                    }
+                });
+            }, observerOptions);
+
+            // Observe all fade-in elements
+            document.querySelectorAll('.fade-in').forEach(el => {
+                observer.observe(el);
+            });
+
+            // Initial render
+            render(defaultConfig);
+        });
+    </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'992433c965205187',t:'MTc2MTA4NTg1Ni4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
